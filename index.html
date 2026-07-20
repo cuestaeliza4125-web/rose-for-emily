@@ -4,146 +4,655 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E-Library Laptop</title>
-<link rel="stylesheet" href="style.css">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Georgia', serif; overflow: hidden; transition: all 0.3s ease; color: #111; }
+body.dark-mode { background: #000; color: #fff; }
+.page { display: none; width: 100vw; height: 100vh; position: relative; }
+.page.active { display: block; }
+/* FADED BACKGROUND */
+.library-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('images/bcp.jpg') center/cover no-repeat; z-index: -2; transition: filter 0.3s ease; filter: blur(2px) brightness(1.1); }
+body.dark-mode .library-bg { filter: blur(1px) brightness(0.4) grayscale(0.1); }
+.bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: -1; transition: background 0.3s ease; }
+body.dark-mode .bg-overlay { background: rgba(0, 0, 0, 0); }
+.title { text-align: center; padding: 30px; font-size: 56px; letter-spacing: 4px; transition: color 0.3s ease; font-weight: 900; }
+/* BOOKS */
+.book-container { display: flex; justify-content: center; gap: 60px; padding: 40px 20px; }
+.book-item { transition: all 0.2s ease; cursor: pointer; }
+.book-item img { width: 240px; height: 340px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); object-fit: cover; transition: transform 0.2s ease, width 0.3s ease, height 0.3s ease; }
+.book-item:hover img { transform: scale(1.05); }
+.book-item:active img { transform: scale(0.95); }
+.book-item p { margin-top: 15px; text-align: center; font-weight: bold; font-size: 17px; transition: all 0.3s ease; }
+/* CONTROLS */
+.controls-wrapper { display: flex; justify-content: space-between; align-items: flex-end; padding: 40px 80px; position: fixed; bottom: 0; width: 100%; }
+.left-side,.right-side { display: flex; gap: 15px; }
+.center-spacer { flex: 1; }
+/* LEFT BUTTONS */
+.left-side button { padding: 14px 40px; font-weight: bold; font-size: 15px; border: 2px solid #222; background: white; border-radius: 8px; width: 200px; height: 50px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; align-items: center; justify-content: center; }
+body.dark-mode .left-side button { border-color: #fff; background: #333; color: #fff; }
+.left-side button:active { background: #8B4513; color: white; transform: scale(0.95); }
+/* RIGHT SIDE */
+.controls-group { display: flex; align-items: center; gap: 20px; }
+/* + - BUTTONS */
+.text-size { display: flex; gap: 8px; }
+.text-size button { width: 50px; height: 50px; font-size: 20px; font-weight: bold; border: 2px solid #222; background: white; border-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+body.dark-mode .text-size button { border-color: #fff; background: #333; color: #fff; }
+.text-size button:active { background: #8B4513; color: white; transform: scale(0.95); }
+/* VOICE SECTION */
+.voice-speed { display: flex; align-items: center; gap: 8px; }
+.voice-select { position: relative; border: 2px solid #222; border-radius: 8px; padding: 4px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; }
+body.dark-mode .voice-select { border-color: #fff; background: #333; }
+#voiceIconBtn { background: none; border: none; padding: 0; display: flex; }
+#voiceIconBtn img { width: 40px; height: 40px; display: block; }
+/* GENDER BADGE NA MAY KULAY */
+.gender-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-right: 8px; transition: all 0.3s; }
+.gender-badge.female { background: #FFC0CB; border: 2px solid #E91E63; }
+.gender-badge.male { background: #BBDEFB; border: 2px solid #2196F3; }
+#currentVoiceIcon { margin-right: 4px; }
+.voice-popup { position: absolute; bottom: 55px; left: 0; background: white; border: 2px solid #222; border-radius: 10px; padding: 12px; z-index: 100; width: 200px; }
+body.dark-mode .voice-popup { background: #333; border-color: #fff; }
+.voice-popup.hidden { display: none; }
+.voice-popup h3 { text-align: center; margin-bottom: 10px; font-size: 14px; }
+.voice-list { padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.voice-list button { padding: 12px; font-size: 14px; font-weight: bold; border: 2px solid #222; background: white; text-align: left; cursor: pointer; border-radius: 8px; transition: all 0.2s; display: flex; align-items: center; }
+body.dark-mode .voice-list button { background: #333; color: #fff; border-color: #fff; }
+.voice-list button:hover { background: #8B4513; color: white; border-color: #8B4513; }
+body.dark-mode .voice-list button:hover { background: #ffa500; color: #000; border-color: #ffa500; }
+#speedSlider { width: 120px; margin-left: 0; }
+#speedValue { display: inline-block; width: 40px; text-align: center; font-weight: bold; margin-left: 2px; }
+/* DOWNLOAD APP */
+#downloadBtn { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #28a745; color: white; border: none; padding: 16px 50px; font-size: 16px; border-radius: 10px; box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+#downloadBtn.hidden { display: none; }
+/* POSTER PAGE */
+.poster-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; }
+.back-btn { position: absolute; top: 25px; left: 25px; font-size: 24px; font-weight: bold; background: rgba(0,0,0,0.2); border: none; border-radius: 10px; padding: 8px 18px; cursor: pointer; z-index: 10; color: #333; transition: 0.2s; }
+.back-btn:hover { background: rgba(0,0,0,0.4); color: white; }
+.start-reading { position: absolute; bottom: 40px; right: 40px; padding: 14px 35px; font-size: 16px; font-weight: bold; border: none; background: #f2d2b5; color: #000; cursor: pointer; border-radius: 12px; z-index: 10; transition: 0.2s; }
+.start-reading:hover { background: #e6bfa0; transform: scale(1.05); }
+body.dark-mode .back-btn { background: rgba(255,255,255,0.2); color: white; }
+/* READER PAGE */
+.reader-header { display: flex; justify-content: center; align-items: center; padding: 20px 40px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #ddd; position: relative; }
+body.dark-mode .reader-header { background: rgba(30,30,30,0.9); border-bottom: 1px solid #333; }
+.reader-header h2 { font-size: 24px; margin: 0; text-align: center; white-space: nowrap; color: #222; }
+body.dark-mode .reader-header h2 { color: #eee; }
+#readAloudBtn, #readAloudBtn2, #readAloudBtn3 { position: absolute; right: 40px; top: 50%; transform: translateY(-50%); padding: 10px 20px; font-size: 14px; font-weight: bold; border: 2px solid #222; background: white; color: #222; border-radius: 8px; cursor: pointer; z-index: 2; }
+body.dark-mode #readAloudBtn, body.dark-mode #readAloudBtn2, body.dark-mode #readAloudBtn3 { background: #333; color: #fff; border-color: #fff; }
+.reader-content { padding: 40px 30px; max-width: 100%; margin: 0; height: calc(100vh - 160px); overflow-y: auto; font-size: 18px !important; line-height: 1.8; text-align: left; color: #222; scrollbar-width: none; -ms-overflow-style: none; }
+.reader-content::-webkit-scrollbar { display: none; }
+body.dark-mode .reader-content { color: #eee; }
+.reader-footer { position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 80px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-top: 1px solid #ddd; }
+body.dark-mode .reader-footer { background: rgba(30,30,30,0.9); }
+.footer-left,.footer-right { display: flex; gap: 10px; }
+.reader-footer button { padding: 12px 30px; font-weight: bold; border: 2px solid #222; background: white; border-radius: 8px; cursor: pointer; }
+body.dark-mode .reader-footer button { background: #333; color: #fff; border-color: #fff; }
+#readerText { display: block!important; visibility: visible!important; opacity: 1!important; color: #222!important; font-size: 18px!important; }
+body.dark-mode #readerText { color: #eee!important; }
+.reader-footer button:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
 </head>
 <body>
 <!-- PAGE 1: LIBRARY -->
 <div id="library-page" class="page active">
-  <div class="library-bg"></div>
-  <div class="bg-overlay"></div>
-  <h1 class="title">E-LIBRARY</h1>
-
-  <!-- BOOKS -->
-  <div class="book-container">
-    <div class="book-item" data-book="emily">
-      <img src="images/emily.jpg" alt="A Rose for Emily">
-      <p>A Rose for Emily<br><span>by William Faulkner</span></p>
-    </div>
-    <div class="book-item" data-book="hour">
-      <img src="images/hour.jpg" alt="The Story of an Hour">
-      <p>The Story of an Hour<br><span>by Kate Chopin</span></p>
-    </div>
-    <div class="book-item" data-book="magi">
-      <img src="images/magi.jpg" alt="The Gift of the Magi">
-      <p>The Gift of the Magi<br><span>by O. Henry</span></p>
-    </div>
-  </div>
-
-  <!-- CONTROLS -->
-  <div class="controls-wrapper">
-    <div class="left-side">
-      <button id="darkModeBtn">DARKMODE</button>
-      <button id="fullscreenBtn">FULLSCREEN</button>
-    </div>
-    <div class="center-spacer"></div>
-    <div class="right-side">
-      <div class="controls-group">
-        <div class="text-size">
-          <button id="textDecrease">-</button>
-          <button id="textIncrease">+</button>
-        </div>
-        <div class="voice-speed">
-          <div class="voice-select">
-            <button id="voiceIconBtn">
-              <img src="images/voice PNG.jpg" alt="Voice">
-            </button>
-            <div id="voicePopup" class="voice-popup hidden">
-              <h3>Select Voice</h3>
-              <div class="voice-list">
-                <button data-gender="female"><span class="gender-badge female">👩</span> Female</button>
-                <button data-gender="male"><span class="gender-badge male">👨</span> Male</button>
-              </div>
-            </div>
-          </div>
-          <span id="currentVoiceIcon" class="gender-badge female">👩</span>
-          <input type="range" id="speedSlider" min="0.5" max="1" step="0.25" value="1">
-          <span id="speedValue">1x</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <button id="downloadBtn" class="hidden">DOWNLOAD APP</button>
+<div class="library-bg"></div>
+<div class="bg-overlay"></div>
+<h1 class="title">E-LIBRARY</h1>
+<div class="book-container">
+<div class="book-item" data-book="emily">
+<img src="images/emily.jpg" alt="A Rose for Emily">
+<p>A Rose for Emily<br><span>by William Faulkner</span></p>
+</div>
+<div class="book-item" data-book="hour">
+<img src="images/hour.jpg" alt="The Story of an Hour">
+<p>The Story of an Hour<br><span>by Kate Chopin</span></p>
+</div>
+<div class="book-item" data-book="magi">
+<img src="images/magi.jpg" alt="The Gift of the Magi">
+<p>The Gift of the Magi<br><span>by O. Henry</span></p>
+</div>
+</div>
+<div class="controls-wrapper">
+<div class="left-side">
+<button id="darkModeBtn">DARKMODE</button>
+<button id="fullscreenBtn">FULLSCREEN</button>
+</div>
+<div class="center-spacer"></div>
+<div class="right-side">
+<div class="controls-group">
+<div class="text-size">
+<button id="textDecrease">-</button>
+<button id="textIncrease">+</button>
+</div>
+<div class="voice-speed">
+<div class="voice-select">
+<button id="voiceIconBtn">
+<img src="images/voice PNG.jpg" alt="Voice">
+</button>
+<div id="voicePopup" class="voice-popup hidden">
+<h3>Select Voice</h3>
+<div class="voice-list">
+<button data-gender="female"><span class="gender-badge female">👩</span> Female</button>
+<button data-gender="male"><span class="gender-badge male">👨</span> Male</button>
+</div>
+</div>
+</div>
+<span id="currentVoiceIcon" class="gender-badge female">👩</span>
+<input type="range" id="speedSlider" min="0.5" max="1" step="0.25" value="1">
+<span id="speedValue">1x</span>
+</div>
+</div>
+</div>
+</div>
+<button id="downloadBtn" class="hidden">DOWNLOAD APP</button>
 </div>
 
 <!-- PAGE 2: EMILY POSTER -->
 <div id="emily-poster" class="page">
-  <button class="back-btn">&lt;</button>
-  <img src="images/emily-cover.jpg" class="poster-img" alt="A Rose for Emily">
-  <button class="start-reading" data-book="emily">start reading</button>
+<button class="back-btn">&lt;</button>
+<img src="images/emily-cover.jpg" class="poster-img" alt="A Rose for Emily">
+<button class="start-reading" data-book="emily">start reading</button>
 </div>
-
 <!-- PAGE 2: HOUR POSTER -->
 <div id="hour-poster" class="page">
-  <button class="back-btn">&lt;</button>
-  <img src="images/hour-cover.jpg" class="poster-img" alt="The Story of an Hour">
-  <button class="start-reading" data-book="hour">start reading</button>
+<button class="back-btn">&lt;</button>
+<img src="images/hour-cover.jpg" class="poster-img" alt="The Story of an Hour">
+<button class="start-reading" data-book="hour">start reading</button>
 </div>
-
 <!-- PAGE 2: MAGI POSTER -->
 <div id="magi-poster" class="page">
-  <button class="back-btn">&lt;</button>
-  <img src="images/magi-cover.jpg" class="poster-img" alt="The Gift of the Magi">
-  <button class="start-reading" data-book="magi">start reading</button>
+<button class="back-btn">&lt;</button>
+<img src="images/magi-cover.jpg" class="poster-img" alt="The Gift of the Magi">
+<button class="start-reading" data-book="magi">start reading</button>
 </div>
-
-<script src="script.js"></script>
-</body>
-</html>
 
 <!-- PAGE 3: READER PAGE FOR EMILY -->
 <div id="emily-reader" class="page">
-  <div class="reader-header">
-  <button class="back-btn reader-back" onclick="goHome()">&lt;</button>
-  <h2>A Rose for Emily</h2>
-  <div>
-    <button id="readAloudBtn">🔊 Read Aloud</button></div>
+<div class="reader-header">
+<button class="back-btn reader-back" onclick="goHome()">&lt;</button>
+<h2>A Rose for Emily</h2>
+<div><button id="readAloudBtn">🔊 Read Aloud</button></div>
 </div>
-  
-  <div class="reader-content" id="readerText"></div>
-
-  <div class="reader-footer">
-  <!-- KALIWA: FONT CONTROLS -->
-  <div class="footer-left">
-  <button id="decreaseFontBtn" onclick="decreaseFontSize()">A-</button>
-  <button id="increaseFontBtn" onclick="increaseFontSize()">A+</button>
+<div class="reader-content" id="readerText"></div>
+<div class="reader-footer">
+<div class="footer-left">
+<button id="decreaseFontBtn" onclick="decreaseFontSize()">A-</button>
+<button id="increaseFontBtn" onclick="increaseFontSize()">A+</button>
 </div>
-
-  <!-- KANAN: PAGE NAV -->
-  <div class="footer-right">
-    <button id="prevPageBtn">← Prev</button>
-    <button id="nextPageBtn">Next →</button>
-  </div>
+<div class="footer-right">
+<button id="prevPageBtn">← Prev</button>
+<button id="nextPageBtn">Next →</button>
+</div>
+</div>
 </div>
 
-<!-- GUMAYA KA LANG DITO FOR HOUR AT MAGI -->
+<!-- PAGE 3: HOUR READER -->
 <div id="hour-reader" class="page">
-  <div class="reader-header">
-    <button class="back-btn reader-back">&lt;</button>
-    <h2>The Story of an Hour</h2>
-    <button id="readAloudBtn2">🔊 Read</button>
-  </div>
-  <div class="reader-content">
-    <p>Knowing that Mrs. Mallard was afflicted with a heart trouble, great care was taken to break to her as gently as possible the news of her husband's death.</p>
-  </div>
-  <div class="reader-footer">
-    <button>Prev</button>
-    <span>Page 1 of 3</span>
-    <button>Next</button>
-  </div>
+<div class="reader-header">
+<button class="back-btn reader-back">&lt;</button>
+<h2>The Story of an Hour</h2>
+<button id="readAloudBtn2">🔊 Read</button>
+</div>
+<div class="reader-content">
+<p>Knowing that Mrs. Mallard was afflicted with a heart trouble, great care was taken to break to her as gently as possible the news of her husband's death.</p>
+</div>
+<div class="reader-footer">
+<button>Prev</button>
+<span>Page 1 of 3</span>
+<button>Next</button>
+</div>
 </div>
 
+<!-- PAGE 3: MAGI READER -->
 <div id="magi-reader" class="page">
-  <div class="reader-header">
-    <button class="back-btn reader-back">&lt;</button>
-    <h2>The Gift of the Magi</h2>
-    <button id="readAloudBtn3">🔊 Read</button>
-  </div>
-  <div class="reader-content">
-    <p>One dollar and eighty-seven cents. That was all. And sixty cents of it was in pennies.</p>
-  </div>
-  <div class="reader-footer">
-    <button>Prev</button>
-    <span>Page 1 of 4</span>
-    <button>Next</button>
-  </div>
+<div class="reader-header">
+<button class="back-btn reader-back">&lt;</button>
+<h2>The Gift of the Magi</h2>
+<button id="readAloudBtn3">🔊 Read</button>
 </div>
+<div class="reader-content">
+<p>One dollar and eighty-seven cents. That was all. And sixty cents of it was in pennies.</p>
+</div>
+<div class="reader-footer">
+<button>Prev</button>
+<span>Page 1 of 4</span>
+<button>Next</button>
+</div>
+</div>
+
+<script>
+console.log("PART 1 LOADED: E-Library Home - Laptop");
+
+let isDark = false;
+let currentSize = 100;
+let selectedGender = 'female';
+let currentRate = 1;
+let femaleVoice = null;
+let maleVoice = null;
+let voices = [];
+let voicesLoaded = false;
+let speechTimeout;
+
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  if(voices.length > 0) {
+    femaleVoice = voices.find(v => v.name.includes('Zira') || v.name.includes('Samantha') || v.name.includes('Female')) || voices[0];
+    maleVoice = voices.find(v => v.name.includes('David') || v.name.includes('Daniel') || v.name.includes('Male')) || voices[1] || voices[0];
+    voicesLoaded = true;
+  }
+}
+speechSynthesis.onvoiceschanged = loadVoices;
+
+// PAGE NAVIGATION
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleDarkMode() {
+  const darkModeBtn = document.getElementById('darkModeBtn');
+  isDark =!isDark;
+  document.body.classList.toggle('dark-mode');
+  if(darkModeBtn) darkModeBtn.textContent = isDark? 'LIGHTMODE' : 'DARKMODE';
+}
+
+function toggleFullscreen() {
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    if(fullscreenBtn) fullscreenBtn.textContent = 'EXIT FULLSCREEN';
+  } else {
+    document.exitFullscreen();
+    if(fullscreenBtn) fullscreenBtn.textContent = 'FULLSCREEN';
+  }
+}
+
+function increaseText() {
+  if(currentSize < 120) { currentSize += 10; updateScale(); }
+}
+function decreaseText() {
+  if(currentSize > 80) { currentSize -= 10; updateScale(); }
+}
+
+function updateScale() {
+  document.querySelectorAll('.book-item p').forEach(el => { el.style.fontSize = currentSize + '%'; });
+  document.querySelectorAll('.book-item img').forEach(img => {
+    img.style.width = (240 * currentSize / 100) + 'px';
+    img.style.height = (340 * currentSize / 100) + 'px';
+  });
+}
+
+function speakSample(text) {
+  if('speechSynthesis' in window && voicesLoaded) {
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = currentRate;
+    utterance.voice = selectedGender === 'male'? maleVoice : femaleVoice;
+    utterance.pitch = selectedGender === 'male'? 0.9 : 1.1;
+    utterance.volume = 2;
+    speechSynthesis.speak(utterance);
+  }
+}
+
+function openBook(bookName) {
+  console.log("Opening book:", bookName);
+  const container = document.querySelector('.book-container');
+  const controls = document.querySelector('.controls-wrapper');
+  if(container) container.style.opacity = 0;
+  if(controls) controls.style.opacity = 0;
+  setTimeout(() => { showPage(bookName + '-poster'); }, 300);
+}
+
+window.addEventListener('load', () => {
+  const downloadBtn = document.getElementById('downloadBtn');
+  if(downloadBtn){ downloadBtn.classList.remove('hidden'); setTimeout(() => { downloadBtn.classList.add('hidden'); }, 10000); }
+
+  const speedSlider = document.getElementById('speedSlider');
+  const speedValue = document.getElementById('speedValue');
+  if(speedSlider && speedValue){
+    speedSlider.addEventListener('input', () => {
+      currentRate = speedSlider.value;
+      speedValue.textContent = currentRate + 'x';
+      clearTimeout(speechTimeout);
+      speechTimeout = setTimeout(() => { if(voicesLoaded) speakSample('Voice speed test'); }, 200);
+    });
+  }
+
+  const darkModeBtn = document.getElementById('darkModeBtn');
+  if(darkModeBtn){ darkModeBtn.addEventListener('click', toggleDarkMode); }
+
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  if(fullscreenBtn){ fullscreenBtn.addEventListener('click', toggleFullscreen); }
+  document.addEventListener('fullscreenchange', () => {
+    if(fullscreenBtn &&!document.fullscreenElement) { fullscreenBtn.textContent = 'FULLSCREEN'; }
+  });
+
+  const textIncrease = document.getElementById('textIncrease');
+  const textDecrease = document.getElementById('textDecrease');
+  if(textIncrease){ textIncrease.addEventListener('click', increaseText); }
+  if(textDecrease){ textDecrease.addEventListener('click', decreaseText); }
+
+  const voiceIconBtn = document.getElementById('voiceIconBtn');
+  const voicePopup = document.getElementById('voicePopup');
+  const currentVoiceIcon = document.getElementById('currentVoiceIcon');
+  if(voiceIconBtn && voicePopup){
+    voiceIconBtn.addEventListener('click', () => { voicePopup.classList.toggle('hidden'); });
+    document.addEventListener('click', (e) => {
+      if(!voiceIconBtn.contains(e.target) &&!voicePopup.contains(e.target)) { voicePopup.classList.add('hidden'); }
+    });
+  }
+  document.querySelectorAll('.voice-list button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedGender = btn.getAttribute('data-gender');
+      if(currentVoiceIcon){
+        if(selectedGender === 'male') { currentVoiceIcon.className = 'gender-badge male'; currentVoiceIcon.textContent = '👨'; }
+        else { currentVoiceIcon.className = 'gender-badge female'; currentVoiceIcon.textContent = '👩'; }
+      }
+      if(voicePopup) voicePopup.classList.add('hidden');
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.target.tagName === 'INPUT') return;
+    if(e.key.toLowerCase() === 'd') toggleDarkMode();
+    if(e.key.toLowerCase() === 'f') toggleFullscreen();
+    if(e.key === 'Escape' && document.fullscreenElement) toggleFullscreen();
+    if(e.key === '+') increaseText();
+    if(e.key === '-') decreaseText();
+  });
+
+  // CLICK BOOK SA LIBRARY > GO TO POSTER
+  document.querySelectorAll('.book-item').forEach(book => {
+    book.addEventListener('click', () => {
+      let bookName = book.dataset.book;
+      openBook(bookName);
+    });
+  });
+
+  // CLICK BACK BUTTON > BALIK LIBRARY
+  document.querySelectorAll('.back-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showPage('library-page');
+      const container = document.querySelector('.book-container');
+      const controls = document.querySelector('.controls-wrapper');
+      if(container) container.style.opacity = 1;
+      if(controls) controls.style.opacity = 1;
+    });
+  });
+
+  loadVoices();
+  setTimeout(loadVoices, 500);
+});
+
+// CLICK START READING > GO TO READER
+document.querySelectorAll('.start-reading').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let bookName = btn.dataset.book;
+    showPage(bookName + '-reader'); 
+  });
+});
+
+// CLICK BACK SA READER > BALIK POSTER
+document.querySelectorAll('.reader-back').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let currentReader = btn.closest('.page').id;
+    let bookName = currentReader.replace('-reader', '');
+    showPage(bookName + '-poster'); 
+  });
+});
+
+// READ ALOUD - MAY CHECK PARA DI MAG ERROR
+const readBtn = document.getElementById('readAloudBtn');
+if(readBtn){
+  readBtn.addEventListener('click', () => {
+    let text = document.querySelector('#emily-reader .reader-content').innerText;
+    speakSample(text);
+  });
+}
+
+// BOOK DATA - 10 PAGES EACH. IKaw na maglalagay ng text
+const bookPages = {
+  'emily': [
+`WHEN Miss Emily Grierson died, our whole town went to her funeral: the men through a sort of respectful affection for a fallen monument, the women mostly out of curiosity to see the inside of her house, which no one save an old man-servant--a combined gardener and cook--had seen in at least ten years.
+
+    It was a big, squarish frame house that had once been white, decorated with cupolas and spires and scrolled balconies in the heavily lightsome style of the seventies, set on what had once been our most select street. But garages and cotton gins had encroached and obliterated even the august names of that neighborhood; only Miss Emily's house was left, lifting its stubborn and coquettish decay above the cotton wagons and the gasoline pumps-an eyesore among eyesores. And now Miss Emily had gone to join the representatives of those august names where they lay in the cedar-bemused cemetery among the ranked and anonymous graves of Union and Confederate soldiers who fell at the battle of Jefferson.
+
+Alive, Miss Emily had been a tradition, a duty, and a care; a sort of hereditary obligation upon the town, dating from that day in 1894 when Colonel Sartoris, the mayor--he who fathered the edict that no Negro woman should appear on the streets without an apron-remitted her taxes, the dispensation dating from the death of her father on into perpetuity. Not that Miss Emily would have accepted charity. Colonel Sartoris invented an involved tale to the effect that Miss Emily's father had loaned money to the town, which the town, as a matter of business, preferred this way of repaying. Only a man of Colonel Sartoris' generation and thought could have invented it, and only a woman could have believed it.`, // Paste mo dito yung text
+`When the next generation, with its more modern ideas, became mayors and aldermen, this arrangement created some little dissatisfaction. On the first of the year they mailed her a tax notice. February came, and there was no reply. They wrote her a formal letter, asking her to call at the sheriff's office at her convenience. A week later the mayor wrote her himself, offering to call or to send his car for her, and received in reply a note on paper of an archaic shape, in a thin, flowing calligraphy in faded ink, to the effect that she no longer went out at all. The tax notice was also enclosed, without comment.
+
+    They called a special meeting of the Board of Aldermen. A deputation waited upon her, knocked at the door through which no visitor had passed since she ceased giving china-painting lessons eight or ten years earlier. They were admitted by the old Negro into a dim hall from which a stairway mounted into still more shadow. It smelled of dust and disuse--a close, dank smell. The Negro led them into the parlor. It was furnished in heavy, leather-covered furniture. When the Negro opened the blinds of one window, they could see that the leather was cracked; and when they sat down, a faint dust rose sluggishly about their thighs, spinning with slow motes in the single sun-ray. On a tarnished gilt easel before the fireplace stood a crayon portrait of Miss Emily's father.
+
+They rose when she entered--a small, fat woman in black, with a thin gold chain descending to her waist and vanishing into her belt, leaning on an ebony cane with a tarnished gold head. Her skeleton was small and spare; perhaps that was why what would have been merely plumpness in another was obesity in her. She looked bloated, like a body long submerged in motionless water, and of that pallid hue. Her eyes, lost in the fatty ridges of her face, looked like two small pieces of coal pressed into a lump of dough as they moved from one face to another while the visitors stated their errand.`,
+`She did not ask them to sit. She just stood in the door and listened quietly until the spokesman came to a stumbling halt. Then they could hear the invisible watch ticking at the end of the gold chain. Her voice was dry and cold. "I have no taxes in Jefferson. Colonel Sartoris explained it to me. Perhaps one of you can gain access to the city records and satisfy yourselves."
+
+    "But we have. We are the city authorities, Miss Emily. Didn't you get a notice from the sheriff, signed by him?"
+    
+    "I received a paper, yes," Miss Emily said. "Perhaps he considers himself the sheriff . . . I have no taxes in Jefferson."
+    
+    "But there is nothing on the books to show that, you see We must go by the--"
+
+    "See Colonel Sartoris. I have no taxes in Jefferson."
+
+    "But, Miss Emily--"
+
+"See Colonel Sartoris." (Colonel Sartoris had been dead almost ten years.) "I have no taxes in Jefferson. Tobe!" The Negro appeared. "Show these gentlemen out."`,
+`So SHE vanquished them, horse and foot, just as she had vanquished their fathers thirty years before about the smell.
+
+    That was two years after her father's death and a short time after her sweetheart--the one we believed would marry her --had deserted her. After her father's death she went out very little; after her sweetheart went away, people hardly saw her at all. A few of the ladies had the temerity to call, but were not received, and the only sign of life about the place was the Negro man--a young man then-- going in and out with a market basket.
+
+    "Just as if a man--any man--could keep a kitchen properly, "the ladies said; so they were not surprised when the smell developed. It was another link between the gross, teeming world and the high and mighty Griersons.
+
+    A neighbor, a woman, complained to the mayor, Judge Stevens, eighty years old.
+
+    "But what will you have me do about it, madam?" he said.
+
+"Why, send her word to stop it," the woman said. "Isn't there a law? "`,
+`"I'm sure that won't be necessary," Judge Stevens said. "It's probably just a snake or a rat that nigger of hers killed in the yard. I'll speak to him about it." The next day he received two more complaints, one from a man who came in diffident deprecation.
+
+    "We really must do something about it, Judge. I'd be the last one in the world to bother Miss Emily, but we've got to do something." That night the Board of Aldermen met--three graybeards and one younger man, a member of the rising generation.
+
+    "It's simple enough," he said. "Send her word to have her place cleaned up. Give her a certain time to do it in, and if she don't. .."
+
+"Dammit, sir," Judge Stevens said, "will you accuse a lady to her face of smelling bad?" 
+
+So the next night, after midnight, four men crossed Miss Emily's lawn and slunk about the house like burglars, sniffing along the base of the brickwork and at the cellar openings while one of them performed a regular sowing motion with his hand out of a sack slung from his shoulder. They broke open the cellar door and sprinkled lime there, and in all the outbuildings. As they recrossed the lawn, a window that had been dark was lighted and Miss Emily sat in it, the light behind her, and her upright torso motionless as that of an idol. They crept quietly across the lawn and into the shadow of the locusts that lined the street. After a week or two the smell went away.`,
+`That was when people had begun to feel really sorry for her. People in our town, remembering how old lady Wyatt, her great-aunt, had gone completely crazy at last, believed that the Griersons held themselves a little too high for what they really were. None of the young men were quite good enough for Miss Emily and such. We had long thought of them as a tableau, Miss Emily a slender figure in white in the background, her father a spraddled silhouette in the foreground, his back to her and clutching a horsewhip, the two of them framed by the back-flung front door. So when she got to be thirty and was still single, we were not pleased exactly, but vindicated; even with insanity in the family she wouldn't have turned down all of her chances if they had really materialized.
+
+When her father died, it got about that the house was all that was left to her; and in a way, people were glad. At last they could pity Miss Emily. Being left alone, and a pauper, she had become humanized. Now she too would know the old thrill and the old despair of a penny more or less.`,
+`The day after his death all the ladies prepared to call at the house and offer condolence and aid, as is our custom Miss Emily met them at the door, dressed as usual and with no trace of grief on her face. She told them that her father was not dead. She did that for three days, with the ministers calling on her, and the doctors, trying to persuade her to let them dispose of the body. Just as they were about to resort to law and force, she broke down, and they buried her father quickly.
+
+We did not say she was crazy then. We believed she had to do that. We remembered all the young men her father had driven away, and we knew that with nothing left, she would have to cling to that which had robbed her, as people will.`,
+`SHE WAS SICK for a long time. When we saw her again, her hair was cut short, making her look like a girl, with a vague resemblance to those angels in colored church windows--sort of tragic and serene.
+
+    The town had just let the contracts for paving the sidewalks, and in the summer after her father's death they began the work. The construction company came with riggers and mules and machinery, and a foreman named Homer Barron, a Yankee--a big, dark, ready man, with a big voice and eyes lighter than his face. The little boys would follow in groups to hear him cuss the riggers, and the riggers singing in time to the rise and fall of picks. Pretty soon he knew everybody in town. Whenever you heard a lot of laughing anywhere about the square, Homer Barron would be in the center of the group. Presently we began to see him and Miss Emily on Sunday afternoons driving in the yellow-wheeled buggy and the matched team of bays from the livery stable.
+
+At first we were glad that Miss Emily would have an interest, because the ladies all said, "Of course a Grierson would not think seriously of a Northerner, a day laborer." But there were still others, older people, who said that even grief could not cause a real lady to forget noblesse oblige- -`,
+`without calling it noblesse oblige. They just said, "Poor Emily. Her kinsfolk should come to her." She had some kin in Alabama; but years ago her father had fallen out with them over the estate of old lady Wyatt, the crazy woman, and there was no communication between the two families. They had not even been represented at the funeral.
+
+And as soon as the old people said, "Poor Emily," the whispering began. "Do you suppose it's really so?" they said to one another. "Of course it is. What else could . . ." This behind their hands; rustling of craned silk and satin behind jalousies closed upon the sun of Sunday afternoon as the thin, swift clop- clop-clop of the matched team passed: "Poor Emily."
+
+She carried her head high enough--even when we believed that she was fallen. It was as if she demanded more than ever the recognition of her dignity as the last Grierson; as if it had wanted that touch of earthiness to reaffirm her imperviousness. Like when she bought the rat poison, the arsenic. That was over a year after they had begun to say "Poor Emily," and while the two female cousins were visiting her.`,
+    `The End.`
+  ],
+
+  'hour': [
+    `Page 1: Knowing that Mrs. Mallard was afflicted with a heart trouble...`,
+    `Page 2: PASTE`,
+    `Page 3: PASTE`,
+    `Page 4: PASTE`,
+    `Page 5: PASTE`,
+    `Page 6: PASTE`,
+    `Page 7: PASTE`,
+    `Page 8: PASTE`,
+    `Page 9: PASTE`,
+    `Page 10: PASTE`
+  ],
+  'magi': [
+    `Page 1: One dollar and eighty-seven cents. That was all...`,
+    `Page 2: PASTE`,
+    `Page 3: PASTE`,
+    `Page 4: PASTE`,
+    `Page 5: PASTE`,
+    `Page 6: PASTE`,
+    `Page 7: PASTE`,
+    `Page 8: PASTE`,
+    `Page 9: PASTE`,
+    `Page 10: PASTE`
+  ]
+};
+
+let currentBook = '';
+let currentPage = 0;
+
+// WAIT MUNA NA MAG LOAD LAHAT NG HTML
+document.addEventListener('DOMContentLoaded', () => {
+
+let currentFontSize = 18; // default size
+
+const increaseBtn = document.getElementById('increaseFontBtn');
+const decreaseBtn = document.getElementById('decreaseFontBtn');
+const textArea = document.getElementById('readerText');
+
+function updateFontSize() {
+  document.getElementById('readerText').style.fontSize = currentFontSize + 'px';
+}
+
+increaseBtn.addEventListener('click', () => {
+  if(currentFontSize < 28) { // max 28px
+    currentFontSize += 2;
+    updateFontSize();
+  }
+});
+
+decreaseBtn.addEventListener('click', () => {
+  if(currentFontSize > 12) { // min 12px
+    currentFontSize -= 2;
+    updateFontSize();
+  }
+});
+
+// KEYBOARD SHORTCUTS
+document.addEventListener('keydown', (e) => {
+  if(e.key === '+' || e.key === '=') { // + key
+    increaseBtn.click();
+  }
+  if(e.key === '-' || e.key === '_') { // - key
+    decreaseBtn.click();
+  }
+});
+
+  // NEXT BUTTON - MAY CHECK
+  const nextBtn = document.getElementById('nextPageBtn');
+  if(nextBtn){
+    nextBtn.addEventListener('click', () => {
+      if(currentPage < 9) {
+        loadPage(currentBook, currentPage + 1);
+      }
+    });
+  }
+
+  // PREV BUTTON - MAY CHECK
+  const prevBtn = document.getElementById('prevPageBtn');
+  if(prevBtn){
+    prevBtn.addEventListener('click', () => {
+      if(currentPage > 0) {
+        loadPage(currentBook, currentPage - 1);
+      }
+    });
+  }
+
+  // READ ALOUD BUTTON - MAY CHECK
+  const readBtn = document.getElementById('readAloudBtn');
+  if(readBtn){
+    readBtn.addEventListener('click', () => {
+      let text = bookPages[currentBook][currentPage];
+      speakSample(text);
+    });
+  }
+
+});
+
+// FUNCTION PARA MAGPALIT NG PAGE
+function loadPage(book, pageNum) {
+  currentBook = book;
+  currentPage = pageNum;
+
+  const textArea = document.getElementById('readerText');
+  const pageNumSpan = document.getElementById('pageNumber');
+
+  // FORCE SET
+  textArea.innerText = bookPages[currentBook][pageNum];
+  textArea.style.color = document.body.classList.contains('dark-mode')? '#eee' : '#222';
+
+  pageNumSpan.innerText = `Page ${pageNum + 1}/10`;
+
+  // BUTTONS
+  document.getElementById('prevPageBtn').style.display = (pageNum === 0)? 'none' : 'inline-block';
+  document.getElementById('nextPageBtn').style.display = (pageNum === 9)? 'none' : 'inline-block';
+}
+
+// PAG CLICK START READING
+document.querySelectorAll('.start-reading').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let bookName = btn.dataset.book;
+    showPage(bookName + '-reader');
+    setTimeout(() => { // delay para sure na load na yung page
+      loadPage(bookName, 0);
+    }, 100);
+  });
+});
+
+// PREV BUTTON
+document.getElementById('prevPageBtn').addEventListener('click', () => {
+  if(currentPage > 0) {
+    loadPage(currentBook, currentPage - 1);
+  }
+});
+
+// READ ALOUD BUTTON
+document.getElementById('readAloudBtn').addEventListener('click', () => {
+  let text = bookPages[currentBook][currentPage];
+  speakSample(text); // ginagamit natin yung voice mo kanina
+});
+
+// PAG BACK SA POSTER IRESET SA PAGE 1
+document.querySelectorAll('.reader-back').forEach(btn => {
+  btn.addEventListener('click', () => {
+    let currentReader = btn.closest('.page').id;
+    let bookName = currentReader.replace('-reader', '');
+    showPage(bookName + '-poster');
+  });
+});
+
+function goHome() {
+  document.getElementById('library').style.display = 'block';
+  document.getElementById('reader').style.display = 'none';
+}
+
+// FONT SIZE
+let currentFontSize = 18; 
+const minFontSize = 14;
+const maxFontSize = 28;
+
+// BACK BUTTON - balik sa library
+function goHome() {
+  document.getElementById('library').style.display = 'block';
+  document.getElementById('reader').style.display = 'none';
+}
+
+// A+ BUTTON
+function increaseFontSize() {
+  if (currentFontSize < maxFontSize) {
+    currentFontSize += 2;
+    document.getElementById('readerText').style.fontSize = currentFontSize + 'px';
+  }
+}
+
+// A- BUTTON
+function decreaseFontSize() {
+  if (currentFontSize > minFontSize) {
+    currentFontSize -= 2;
+    document.getElementById('readerText').style.fontSize = currentFontSize + 'px';
+  }
+}
+</script>
+</body>
+</html>

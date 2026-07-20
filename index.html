@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Library Laptop</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- PAGE 1: LIBRARY -->
+<div id="library-page" class="page active">
+  <div class="library-bg"></div>
+  <div class="bg-overlay"></div>
+  <h1 class="title">E-LIBRARY</h1>
+
+  <!-- BOOKS -->
+  <div class="book-container">
+    <div class="book-item" data-book="emily">
+      <img src="images/emily.jpg" alt="A Rose for Emily">
+      <p>A Rose for Emily<br><span>by William Faulkner</span></p>
+    </div>
+    <div class="book-item" data-book="hour">
+      <img src="images/hour.jpg" alt="The Story of an Hour">
+      <p>The Story of an Hour<br><span>by Kate Chopin</span></p>
+    </div>
+    <div class="book-item" data-book="magi">
+      <img src="images/magi.jpg" alt="The Gift of the Magi">
+      <p>The Gift of the Magi<br><span>by O. Henry</span></p>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-wrapper">
+    <div class="left-side">
+      <button id="darkModeBtn">DARKMODE</button>
+      <button id="fullscreenBtn">FULLSCREEN</button>
+    </div>
+    <div class="center-spacer"></div>
+    <div class="right-side">
+      <div class="controls-group">
+        <div class="text-size">
+          <button id="textDecrease">-</button>
+          <button id="textIncrease">+</button>
+        </div>
+        <div class="voice-speed">
+          <div class="voice-select">
+            <button id="voiceIconBtn">
+              <img src="images/voice PNG.jpg" alt="Voice">
+            </button>
+            <div id="voicePopup" class="voice-popup hidden">
+              <h3>Select Voice</h3>
+              <div class="voice-list">
+                <button data-gender="female"><span class="gender-badge female">👩</span> Female</button>
+                <button data-gender="male"><span class="gender-badge male">👨</span> Male</button>
+              </div>
+            </div>
+          </div>
+          <span id="currentVoiceIcon" class="gender-badge female">👩</span>
+          <input type="range" id="speedSlider" min="0.5" max="1" step="0.25" value="1">
+          <span id="speedValue">1x</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="downloadBtn" class="hidden">DOWNLOAD APP</button>
+</div>
+
+<!-- PAGE 2: EMILY POSTER -->
+<div id="emily-poster" class="page">
+  <button class="back-btn">&lt;</button>
+  <img src="images/emily-cover.jpg" class="poster-img" alt="A Rose for Emily">
+  <button class="start-reading" data-book="emily">start reading</button>
+</div>
+
+<!-- PAGE 2: HOUR POSTER -->
+<div id="hour-poster" class="page">
+  <button class="back-btn">&lt;</button>
+  <img src="images/hour-cover.jpg" class="poster-img" alt="The Story of an Hour">
+  <button class="start-reading" data-book="hour">start reading</button>
+</div>
+
+<!-- PAGE 2: MAGI POSTER -->
+<div id="magi-poster" class="page">
+  <button class="back-btn">&lt;</button>
+  <img src="images/magi-cover.jpg" class="poster-img" alt="The Gift of the Magi">
+  <button class="start-reading" data-book="magi">start reading</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
+<!-- PAGE 3: READER PAGE FOR EMILY -->
+<div id="emily-reader" class="page">
+  <div class="reader-header">
+  <button class="back-btn reader-back" onclick="goHome()">&lt;</button>
+  <h2>A Rose for Emily</h2>
+  <div>
+    <button id="readAloudBtn">🔊 Read Aloud</button></div>
+</div>
+  
+  <div class="reader-content" id="readerText"></div>
+
+  <div class="reader-footer">
+  <!-- KALIWA: FONT CONTROLS -->
+  <div class="footer-left">
+  <button id="decreaseFontBtn" onclick="decreaseFontSize()">A-</button>
+  <button id="increaseFontBtn" onclick="increaseFontSize()">A+</button>
+</div>
+
+  <!-- KANAN: PAGE NAV -->
+  <div class="footer-right">
+    <button id="prevPageBtn">← Prev</button>
+    <button id="nextPageBtn">Next →</button>
+  </div>
+</div>
+
+<!-- GUMAYA KA LANG DITO FOR HOUR AT MAGI -->
+<div id="hour-reader" class="page">
+  <div class="reader-header">
+    <button class="back-btn reader-back">&lt;</button>
+    <h2>The Story of an Hour</h2>
+    <button id="readAloudBtn2">🔊 Read</button>
+  </div>
+  <div class="reader-content">
+    <p>Knowing that Mrs. Mallard was afflicted with a heart trouble, great care was taken to break to her as gently as possible the news of her husband's death.</p>
+  </div>
+  <div class="reader-footer">
+    <button>Prev</button>
+    <span>Page 1 of 3</span>
+    <button>Next</button>
+  </div>
+</div>
+
+<div id="magi-reader" class="page">
+  <div class="reader-header">
+    <button class="back-btn reader-back">&lt;</button>
+    <h2>The Gift of the Magi</h2>
+    <button id="readAloudBtn3">🔊 Read</button>
+  </div>
+  <div class="reader-content">
+    <p>One dollar and eighty-seven cents. That was all. And sixty cents of it was in pennies.</p>
+  </div>
+  <div class="reader-footer">
+    <button>Prev</button>
+    <span>Page 1 of 4</span>
+    <button>Next</button>
+  </div>
+</div>
